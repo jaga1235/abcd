@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glowing Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <!-- Auth Section -->
+  <div id="authSection">
+    <!-- Login Form -->
+    <div id="loginContainer" class="auth-container">
+      <div class="auth-header">
+        <h2>🔒 Login to Dashboard</h2>
+        <p>Access your glowing dashboard</p>
+      </div>
+      <div class="error-message" id="loginError"></div>
+      <form class="auth-form" id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="text" id="loginEmail" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="auth-btn">Login</button>
+      </form>
+      <div class="auth-switch">
+        <p>Don't have an account? <a id="showRegister">Register</a></p>
+      </div>
+    </div>
+    
+    <!-- Register Form -->
+    <div id="registerContainer" class="auth-container hidden">
+      <div class="auth-header">
+        <h2>✨ Create Account</h2>
+        <p>Join our glowing community</p>
+      </div>
+      <div class="error-message" id="registerError"></div>
+      <form class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label for="registerName">Full Name</label>
+          <input type="text" id="registerName" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="registerPhone">Phone</label>
+          <input type="text" id="registerPhone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <input type="password" id="registerPassword" placeholder="Create a password" required>
+        </div>
+        <div class="form-group">
+          <label for="registerConfirmPassword">Confirm Password</label>
+          <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required>
+        </div>
+        <button type="submit" class="auth-btn">Register</button>
+      </form>
+      <div class="auth-switch">
+        <p>Already have an account? <a id="showLogin">Login</a></p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Dashboard Section -->
+  <div id="dashboardSection" class="hidden">
+    <!-- Home Page -->
+    <div id="home" class="tab-content active">
+      <h2>🏠 <span style="color:#66ffcc">CodeAliva</span></h2>
+      <p>Welcome back! Explore your income dashboard.</p>
+      <div class="card-grid">
+        <div class="option-card" onclick="showProductIncome()">💼 Product Income</div>
+        <div class="option-card" onclick="showExtraIncome()">💰 Extra Income</div>
+        <div class="option-card" onclick="goToTeam()">👥 Team Income</div>
+        <div class="option-card" onclick="handleDailySignIn()">✅ Daily Signed In</div>
+      </div>
+    </div>
+
+    <!-- Product Income -->
+    <div id="productIncome" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>💼 Product Income</h2>
+      <p class="balance">Wallet Balance: ₹<span id="walletBalance">0</span></p>
+      <h3>📜 Transaction History</h3>
+      <div class="history" id="productIncomeHistory">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- Extra Income -->
+    <div id="extraIncome" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>💰 Extra Income</h2>
+      <h3>📜 Transaction History</h3>
+      <div class="history" id="extraIncomeHistory">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- Invest Tab -->
+    <div id="invest" class="tab-content">
+      <h2>💰 Invest</h2>
+      <div class="card-grid">
+        <div class="option-card" onclick="showStableSeries()">Stable Series</div>
+        <div class="option-card">Productable Series</div>
+        <div class="option-card">Innovative Series</div>
+      </div>
+    </div>
+
+    <!-- Stable Series Plans -->
+    <div id="stableSeries" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>📊 Stable Series</h2>
+      <div class="card-grid">
+        <div class="option-card" onclick="showPlanDetails('₹480.00','₹22','89','1 Time/Day', 'VIP 1')">6$ Plan</div>
+        <div class="option-card" onclick="showPlanDetails('₹1400.00','₹55','89','1 Time/Day', 'VIP 2')">17.55$ Plan</div>
+        <div class="option-card" onclick="showPlanDetails('₹2800.00','₹110','89','1 Time/Day', 'VIP 3')">35.10$ Plan</div>
+        <div class="option-card" onclick="showPlanDetails('₹4650.00','₹180','89','1 Time/Day', 'VIP 4')">58.50$ Plan</div>
+      </div>
+    </div>
+
+    <!-- Plan Details -->
+    <div id="planDetails" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>📄 Plan Details</h2>
+      <div class="plan-info">
+        <p>Participation Amount: <span id="planAmount"></span></p>
+        <p>Per Day Income: <span id="dailyIncome"></span></p>
+        <p>Recycling Period: <span id="recyclePeriod"></span> Days</p>
+        <p>Daily Recycling: <span id="recycleTime"></span></p>
+        <p>VIP Level: <span id="vipLevelPlan"></span></p>
+      </div>
+      <div class="payment-card">
+        <button onclick="togglePaymentOptions()">🔽 Select Payment Method</button>
+        <div id="paymentOptions" style="display: none;">
+          <button onclick="selectSuperior()">🟩 Pay by Superior</button>
+          <button onclick="selectBinance()">🟥 Pay by Binance</button>
+          <div id="superiorPayment" style="display: none;">
+            <h3>Pay <span id="planAmountDisplay"></span></h3>
+            <p>Pay by which method?</p>
+            <div class="method-buttons">
+              <button onclick="selectUPI()">PhonePe</button>
+              <button onclick="selectUPI()">Google Pay</button>
+              <button onclick="selectUPI()">Paytm</button>
+              <button onclick="selectUPI()">Freecharge</button>
+            </div>
+            <div id="upiSection" style="display: none;">
+              <p>Send to UPI ID: <strong>9438276347@ybl</strong></p>
+              <input type="text" placeholder="Enter 12-digit UTR" maxlength="12" id="upiCode">
+              <button onclick="submitInvestment()">Submit</button>
+            </div>
+          </div>
+          <div id="binancePayment" style="display: none;">
+            <p>🚧 Contact your superior</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Tab -->
+    <div id="team" class="tab-content">
+      <h2>👥 Team Income</h2>
+      <div class="plan-info">
+        <p><strong>Referral Code:</strong> <span id="referralCodeDisplay">JG10101</span></p>
+        <p><strong>Members Referred:</strong> <span id="membersReferred">0</span></p>
+        <p>💸 You get <strong>10% commission</strong> per refer</p>
+      </div>
+      <h3>📜 Team Income History</h3>
+      <div class="history" id="teamIncomeHistory">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- Me Tab -->
+    <div id="me" class="tab-content">
+      <div class="me-card profile-box">
+        <div class="me-header">
+          <div class="avatar">🌀</div>
+          <div class="me-info">
+            <h3 id="userName">User</h3>
+            <p id="userPhone">000****000</p>
+            <p><strong id="userId">[ID:000000]</strong></p>
+          </div>
+        </div>
+        <div class="vip-box">
+          <span class="vip-label">💎 VIP LEVEL</span>
+          <span class="vip-badge" id="vipLevel">VIP 0</span>
+          <div class="progress-bar">
+            <div class="progress" id="vipProgress" style="width: 0%;"></div>
+          </div>
+          <p class="progress-text" id="vipProgressText">Current progress 0 / 0</p>
+        </div>
+      </div>
+
+      <div class="me-actions">
+        <button class="me-btn" onclick="showRechargePopup()">📥 Recharge</button>
+        <button class="me-btn" onclick="showWithdrawalPopup()">💸 Withdrawal</button>
+        <button class="me-btn" onclick="showMyOrders()">📦 My Orders</button>
+        <button class="me-btn" onclick="showMyBill()">📄 My Bill</button>
+        <button class="me-btn" onclick="goToTeam()">👥 My Team</button>
+        <button class="me-btn" onclick="switchTab('bankCard', null)">💳 Bank Card</button>
+      </div>
+
+      <div class="me-card income-card">
+        <div class="income-header">
+          <h3>My Income</h3>
+          <a href="#" onclick="switchTab('productIncome')">Income Details &gt;</a>
+        </div>
+        <div class="income-details">
+          <div><strong>Recharge Balance</strong><br><span id="rechargeBalance">₹0</span></div>
+          <div><strong>Withdrawal Balance</strong><br><span id="withdrawalBalance">₹0</span></div>
+          <div><strong>Product Income</strong><br><span id="productIncomeBalance">₹0</span></div>
+          <div><strong>Order Num</strong><br><span id="orderCount">0</span></div>
+        </div>
+      </div>
+      
+      <button class="logout-btn" onclick="logout()">🔒 Logout</button>
+    </div>
+
+    <!-- Bank Card Section -->
+    <div id="bankCard" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>💳 Bank Card</h2>
+      <div class="card-form">
+        <input type="text" placeholder="Bank Name" id="bankName">
+        <input type="text" placeholder="Account Number" id="accountNumber">
+        <input type="text" placeholder="IFSC Code" id="ifscCode">
+        <input type="text" placeholder="Account Holder Name" id="holderName">
+        <button onclick="saveBankDetails()">Save Details</button>
+      </div>
+    </div>
+
+    <!-- My Orders -->
+    <div id="myOrders" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>📦 My Orders</h2>
+      <div class="history" id="ordersList">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- My Bill -->
+    <div id="myBill" class="tab-content">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <h2>📄 My Bill</h2>
+      <div class="history" id="billsList">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- Recharge Popup -->
+    <div id="rechargePopup" class="popup hidden">
+      <div class="popup-content">
+        <h3>📱 Mobile Recharge</h3>
+        <input type="text" id="rechargeMobile" placeholder="Enter Mobile Number" maxlength="10">
+        <input type="number" id="rechargeAmount" placeholder="Enter Amount (₹)">
+        <div class="popup-buttons">
+          <button onclick="submitRecharge()">Submit</button>
+          <button onclick="closePopup('rechargePopup')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Withdrawal Popup -->
+    <div id="withdrawalPopup" class="popup hidden">
+      <div class="popup-content">
+        <h3>💸 Withdraw Funds</h3>
+        <input type="number" id="withdrawalAmount" placeholder="Enter Amount (₹)">
+        <input type="password" id="withdrawalPassword" placeholder="Enter Password">
+        <div class="popup-buttons">
+          <button onclick="submitWithdrawal()">Submit</button>
+          <button onclick="closePopup('withdrawalPopup')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Sign-In Popup -->
+    <div id="dailySignInPopup" class="popup hidden">
+      <div class="popup-content">
+        <h3>🎉 Daily Bonus!</h3>
+        <p>You won <span style="color:#66ffcc">₹5</span>!</p>
+        <button onclick="closePopup('dailySignInPopup')">Claim</button>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+      <a href="#" class="nav-tab" onclick="switchTab('home', this)">🏠<br>Home</a>
+      <a href="#" class="nav-tab" onclick="switchTab('invest', this)">💰<br>Invest</a>
+      <a href="#" class="nav-tab" onclick="switchTab('team', this)">👥<br>Team</a>
+      <a href="#" class="nav-tab" onclick="switchTab('me', this)">🙋<br>Me</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
